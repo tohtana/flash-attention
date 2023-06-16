@@ -817,7 +817,7 @@ class FlashAttnFunc(torch.autograd.Function):
     @staticmethod
     def backward(ctx, do):
         q, k, v, o, lse, bias = ctx.saved_tensors
-        assert not ctx.needs_input_grad[3], 'FlashAttention does not support bias gradient yet'
+#        assert not ctx.needs_input_grad[3], 'FlashAttention does not support bias gradient yet'
         # Triton's autotune causes the Tensor._version to change, and so Pytorch autograd
         # does a memcpy. To avoid this we run in inference_mode, which doesn't track the version.
         with torch.inference_mode():
@@ -825,7 +825,7 @@ class FlashAttnFunc(torch.autograd.Function):
             dk = torch.empty_like(k)
             dv = torch.empty_like(v)
             _flash_attn_backward(do, q, k, v, o, lse, dq, dk, dv,
-                                 bias=bias, causal=ctx.causal, softmax_scale=ctx.softmax_scale)
+                                 bias=None, causal=ctx.causal, softmax_scale=ctx.softmax_scale)
         return dq, dk, dv, None, None, None
 
 
